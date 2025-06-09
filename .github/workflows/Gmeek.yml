@@ -8,7 +8,7 @@ on:
     - cron: "0 16 * * *"
     
 jobs:
-  build: Gmeek
+  build:
     name: Generate blog
     runs-on: ubuntu-24.04
     if: ${{ github.event.repository.owner.id == github.event.sender.id || github.event_name == 'schedule' }}
@@ -33,9 +33,9 @@ jobs:
         with:
           python-version: 3.8
 
-     - name: Clone source code
+      - name: Clone source code
         run: |
-         GMEEK_VERSION=$(jq -r ".GMEEK_VERSION" config.json)
+          GMEEK_VERSION=$(jq -r ".GMEEK_VERSION" config.json)
           git clone https://github.com/Meekdai/Gmeek.git /opt/Gmeek;
           cd /opt/Gmeek/
           lastTag=$(git describe --tags `git rev-list --tags --max-count=1`)
