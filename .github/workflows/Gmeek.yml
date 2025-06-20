@@ -1,4 +1,4 @@
-name: build Gmeek
+name: build Gmeek GithubPages
 
 on:
   workflow_dispatch:
