@@ -68,12 +68,7 @@ body{box-sizing: border-box;min-width: 200px;max-width: 1024px;margin: 20px auto
         <svg class="octicon" width="16" height="16">
             <path id="music" fill-rule="evenodd"></path>
         </svg>
-    </a>
-        <a href="{'music': 'https://music.meekdai.com'}" id="about" class="btn btn-invisible circle" title="">
-        <svg class="octicon" width="16" height="16">
-            <path id="music" fill-rule="evenodd"></path>
-        </svg>
-    </a>
+    </a>   
     <a class="btn btn-invisible circle" onclick="modeSwitch()" title="切换主题">
         <svg class="octicon" width="16" height="16" >
             <path id="themeSwitch" fill-rule="evenodd"></path>
@@ -138,7 +133,7 @@ console.log("\n %c Gmeek last https://github.com/Monsieur-Q/Gmeek \n","padding:5
 <script>
 document.getElementById("pathHome").setAttribute("d",IconList["home"]);
 document.getElementById("searchSVG").setAttribute("d",IconList["search"]);
-document.getElementById("music").setAttribute("d",IconList["music"]);
+
 tagList=[];
 labelsCount={};
 jsonData='';
