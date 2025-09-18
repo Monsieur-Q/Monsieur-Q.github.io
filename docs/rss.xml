@@ -1,5 +1,34 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>QsBlog</title><link>http://blog.chggang.site</link><description>MyFirstSite</description><copyright>QsBlog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>http://blog.chggang.site</link></image><lastBuildDate>Mon, 25 Aug 2025 16:30:26 +0000</lastBuildDate><managingEditor>QsBlog</managingEditor><ttl>60</ttl><webMaster>QsBlog</webMaster><item><title>Amlogic 盒子 解决key丢失问题</title><link>http://blog.chggang.site/post/Amlogic%20-he-zi-%20-jie-jue-key-diu-shi-wen-ti.html</link><description>[分享] Amlogic系列盒子彻底解决key丢失问题
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>QsBlog</title><link>http://blog.chggang.site</link><description>MyFirstSite</description><copyright>QsBlog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>http://blog.chggang.site</link></image><lastBuildDate>Thu, 18 Sep 2025 09:13:59 +0000</lastBuildDate><managingEditor>QsBlog</managingEditor><ttl>60</ttl><webMaster>QsBlog</webMaster><item><title>设置Armbian服务器</title><link>http://blog.chggang.site/post/she-zhi-Armbian-fu-wu-qi.html</link><description>优化网页访问实现更多控制功能
+
+### Boa静态网页服务器
+
+1. Boe直接下载的package.tar.gz解压缩后
+2. 相应修改文件参数，执行./configure, 生成make文件
+3. 再make出二进制boa文件
+4. 将Boa拷贝进/bin目录
+5. 将package下的boa.conf拷贝进/etc/boa文件夹并适当修改
+6. 在/www文件夹下生成index.html，及/cgi-bin文件夹，以备后续静态网页按钮对应的脚本执行
+
+（备份好相关文件及代码）
+
+### 静态网页执行脚本
+
+1. 脚本执行 - 根据deepseek/kimi生成的网页
+2. 设置/etc/sudoers.d/里面的nobody-run-scr1设置允许nobody执行root的参数
+3. 将index静态网页里的按钮参数与/data/local/tmp下的各个.sh对应
+
+（*保存好相关html代码，/cgi-bin下面的.py文件 - python-CGI）
+
+### NGINX
+
+1. 尝试过用boa设置反向代理花生壳内网映射的80端口到rslsync的8888端口，最终由于无法实现认证登录所以采用了nginx
+2. 将boa监听端口改为8081
+3. 将nginx监听端口改为8080
+4. 对应花生壳服务器80端口或443端口建立映射到内网127.0.0.1:8080
+5. nginx在设置里将location分配端口转发/反向代理
+6. 代理内容为除了/rslsync/和/gui/两个下级网址，其他都转到8081即Boa监听的端口，访问静态网页
+7. 如此可通过nginx扩展其他类似rslsync的app其他端口通过花生壳一条映射访问。</description><guid isPermaLink="true">http://blog.chggang.site/post/she-zhi-Armbian-fu-wu-qi.html</guid><pubDate>Thu, 18 Sep 2025 09:13:26 +0000</pubDate></item><item><title>Amlogic 盒子 解决key丢失问题</title><link>http://blog.chggang.site/post/Amlogic%20-he-zi-%20-jie-jue-key-diu-shi-wen-ti.html</link><description>[分享] Amlogic系列盒子彻底解决key丢失问题
 
 MXQ Pro+ 2+16外贸盒子，千兆网卡用用还可以，就是刷机时出了问题导致mac地址不固定每次开机随机变很烦人；
 网上查询了很多帖子，有很多网友有类似问题（例如N1...)，据说是因为刷机时key被弄丢了，主要解决方案如下：
