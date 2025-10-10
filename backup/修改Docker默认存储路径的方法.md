@@ -7,9 +7,16 @@
 首先，我们需要找到Docker的配置文件。这个文件通常位于Docker的安装目录中，路径可能是“/etc/docker/daemon.json“或者类似的路径。请根据你的系统和安装方式的不同进行调整。
 接下来，我们需要编辑这个配置文件。你可以使用任何文本编辑器来完成这个任务，比如vim、nano或者gedit。下面是一个示例的配置文件内容：
 
+
+```javascript
+// A simple function
 {
 "data-root": "/new/path/for/docker"
 }
+```
+
+
+
 在上面的示例中，我们将默认的存储路径修改为“/new/path/for/docker“。你需要将这个路径替换为你想要的实际路径。
 保存并关闭配置文件后，我们需要重启Docker服务以使更改生效。你可以使用以下命令来重启Docker服务（取决于你的操作系统和Docker的安装方式）：
 对于Ubuntu或者其他使用systemd的Linux发行版：
