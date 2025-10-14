@@ -1,5 +1,62 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>QsBlog</title><link>http://blog.chggang.site</link><description>MyFirstSite</description><copyright>QsBlog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>http://blog.chggang.site</link></image><lastBuildDate>Fri, 10 Oct 2025 08:01:33 +0000</lastBuildDate><managingEditor>QsBlog</managingEditor><ttl>60</ttl><webMaster>QsBlog</webMaster><item><title>修改Docker默认存储路径的方法</title><link>http://blog.chggang.site/post/xiu-gai-Docker-mo-ren-cun-chu-lu-jing-de-fang-fa.html</link><description>转自:
+<rss xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0"><channel><title>QsBlog</title><link>http://blog.chggang.site</link><description>MyFirstSite</description><copyright>QsBlog</copyright><docs>http://www.rssboard.org/rss-specification</docs><generator>python-feedgen</generator><image><url>https://github.githubassets.com/favicons/favicon.svg</url><title>avatar</title><link>http://blog.chggang.site</link></image><lastBuildDate>Tue, 14 Oct 2025 06:40:21 +0000</lastBuildDate><managingEditor>QsBlog</managingEditor><ttl>60</ttl><webMaster>QsBlog</webMaster><item><title>给armbian服务器nginx-&gt;boa静态网页添加登录密码认证</title><link>http://blog.chggang.site/post/gei-armbian-fu-wu-qi-nginx--boa-jing-tai-wang-ye-tian-jia-deng-lu-mi-ma-ren-zheng.html</link><description># 给armbian服务器nginx-&gt;boa静态网页添加登录密码认证
+
+**一、生成密码文件（只需做一次）**
+1. 安装工具（Debian/Ubuntu/Armbian 都一样）
+`sudo apt update &amp;&amp; sudo apt install apache2-utils -y`
+
+**2. 建一个目录专门放密码**
+`sudo mkdir -p /etc/nginx/passwd`
+
+**3. 依次写入 3 个账号（每行一个，-c 只有第一次用）**
+```
+sudo htpasswd -bc /etc/nginx/passwd/boa_users alice 123456
+sudo htpasswd -b /etc/nginx/passwd/boa_users bob 654321
+sudo htpasswd -b /etc/nginx/passwd/boa_users carol abcdef
+```
+
+**4. 确认文件权限**
+```
+sudo chmod 640 /etc/nginx/passwd/boa_users
+sudo chown root:www-data /etc/nginx/passwd/boa_users
+```
+
+**二、修改 Nginx 配置**
+假设你现在的反向代理片段长这样（http 段，或者 server 段）：
+
+```
+location / {
+proxy_pass http://127.0.0.1:8080; # Boa 监听的端口
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+}
+
+```
+把它改成：
+```
+
+location / {
+# 1. 先要求基本认证
+auth_basic “Armbian Boa — Login Required”;
+auth_basic_user_file /etc/nginx/passwd/boa_users;
+
+# 2. 认证通过后再反向代理到 Boa
+proxy_pass http://127.0.0.1:8080;
+proxy_set_header Host $host;
+proxy_set_header X-Real-IP $remote_addr;
+}
+```
+
+保存后检查语法并重载：
+
+```
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+**三、验证**
+内网用浏览器访问 http://&lt;内网IP&gt;/index-time.html
+会弹出一个“输入用户名密码”的框，输入 alice/123456 才能看到页面。</description><guid isPermaLink="true">http://blog.chggang.site/post/gei-armbian-fu-wu-qi-nginx--boa-jing-tai-wang-ye-tian-jia-deng-lu-mi-ma-ren-zheng.html</guid><pubDate>Tue, 14 Oct 2025 06:33:01 +0000</pubDate></item><item><title>修改Docker默认存储路径的方法</title><link>http://blog.chggang.site/post/xiu-gai-Docker-mo-ren-cun-chu-lu-jing-de-fang-fa.html</link><description>转自:
 (https://developer.baidu.com/article/details/2805112)
 关注
 简介：本文将介绍如何修改Docker的默认存储路径，使用“data-root“配置选项替代过时的“graph“选项。</description><guid isPermaLink="true">http://blog.chggang.site/post/xiu-gai-Docker-mo-ren-cun-chu-lu-jing-de-fang-fa.html</guid><pubDate>Mon, 22 Sep 2025 13:53:32 +0000</pubDate></item><item><title>设置Armbian服务器</title><link>http://blog.chggang.site/post/she-zhi-Armbian-fu-wu-qi.html</link><description>**优化网页访问实现更多控制功能**
