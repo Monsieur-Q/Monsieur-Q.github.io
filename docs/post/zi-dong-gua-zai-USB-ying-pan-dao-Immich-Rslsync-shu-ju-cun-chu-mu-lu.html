@@ -23,7 +23,7 @@
 <meta property="og:url" content="http://blog.chggang.site/post/zi-dong-gua-zai-USB-ying-pan-dao-Immich-Rslsync-shu-ju-cun-chu-mu-lu.html">
 <meta property="og:image" content="https://Monsieur-Q.github.io/logo64.jpg">
 <title>自动挂载USB硬盘到Immich/Rslsync数据存储目录</title>
-<link href="//unpkg.com/@wooorm/starry-night@2.1.1/style/both.css" rel="stylesheet" />
+
 
 
 </head>
@@ -131,43 +131,44 @@ chmod 755 /usr/local/bin/mount-data-disk.sh
 /usr/local/bin/mount-data-disk.sh &amp;&amp; echo ONLINE || echo FAIL
 </code></pre>
 <p>代码</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#!</span>/bin/bash</span>
-<span class="pl-c"><span class="pl-c">#</span> mount-data-disk.sh  --  bind-mount USB-DATA to /DATA</span>
-DEV=<span class="pl-s"><span class="pl-pds">$(</span>blkid -L ARMBIAN_DATA<span class="pl-pds">)</span></span>
-[ <span class="pl-k">-z</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$DEV</span><span class="pl-pds">"</span></span> ] <span class="pl-k">&amp;&amp;</span> { logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: label ARMBIAN_DATA not found<span class="pl-pds">"</span></span><span class="pl-k">;</span> <span class="pl-c1">exit</span> 1<span class="pl-k">;</span> }
+<pre lang="bash" class="notranslate"><code class="notranslate">#!/bin/bash
+# mount-data-disk.sh  --  bind-mount USB-DATA to /DATA
+DEV=$(blkid -L ARMBIAN_DATA)
+[ -z "$DEV" ] &amp;&amp; { logger "USB-DATA: label ARMBIAN_DATA not found"; exit 1; }
 
-<span class="pl-c"><span class="pl-c">#</span> 如已挂载则退出</span>
-mountpoint -q /DATA <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">exit</span> 0
+# 如已挂载则退出
+mountpoint -q /DATA &amp;&amp; exit 0
 
-<span class="pl-c"><span class="pl-c">#</span> 本地/DATA防写解除（如上次卸载加了+i）</span>
-chattr -i /DATA <span class="pl-k">2&gt;</span>/dev/null
+# 本地/DATA防写解除（如上次卸载加了+i）
+chattr -i /DATA 2&gt;/dev/null
 
 mkdir -p /mnt/usb-data
-mountpoint -q /mnt/usb-data <span class="pl-k">||</span> mount -t auto -o defaults,noatime <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$DEV</span><span class="pl-pds">"</span></span> /mnt/usb-data
-<span class="pl-k">if</span> [ <span class="pl-smi">$?</span> <span class="pl-k">-ne</span> 0 ]<span class="pl-k">;</span> <span class="pl-k">then</span>
-    logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: mount <span class="pl-smi">$DEV</span> -&gt; /mnt/usb-data failed<span class="pl-pds">"</span></span>
-    <span class="pl-c1">exit</span> 1
-<span class="pl-k">fi</span>
+mountpoint -q /mnt/usb-data || mount -t auto -o defaults,noatime "$DEV" /mnt/usb-data
+if [ $? -ne 0 ]; then
+    logger "USB-DATA: mount $DEV -&gt; /mnt/usb-data failed"
+    exit 1
+fi
 
-<span class="pl-c"><span class="pl-c">#</span> 检查/DATA目录存在</span>
-<span class="pl-k">if</span> [ <span class="pl-k">!</span> <span class="pl-k">-d</span> /mnt/usb-data/DATA ]<span class="pl-k">;</span> <span class="pl-k">then</span>
-    logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: /mnt/usb-data/DATA missing<span class="pl-pds">"</span></span>
+# 检查/DATA目录存在
+if [ ! -d /mnt/usb-data/DATA ]; then
+    logger "USB-DATA: /mnt/usb-data/DATA missing"
     umount /mnt/usb-data
-    <span class="pl-c1">exit</span> 1
-<span class="pl-k">fi</span>
+    exit 1
+fi
 
-<span class="pl-c"><span class="pl-c">#</span> bind覆盖</span>
+# bind覆盖
 mount --bind /mnt/usb-data/DATA /DATA
-<span class="pl-k">if</span> [ <span class="pl-smi">$?</span> <span class="pl-k">-eq</span> 0 ]<span class="pl-k">;</span> <span class="pl-k">then</span>
-    logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: /DATA now bind to <span class="pl-smi">$DEV</span><span class="pl-pds">"</span></span>
-    <span class="pl-c"><span class="pl-c">#</span> 更新时间戳（给crond idle用）</span>
+if [ $? -eq 0 ]; then
+    logger "USB-DATA: /DATA now bind to $DEV"
+    # 更新时间戳（给crond idle用）
     touch /var/lib/usb-data-last-used
-<span class="pl-k">else</span>
-    logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: bind-mount failed<span class="pl-pds">"</span></span>
+else
+    logger "USB-DATA: bind-mount failed"
     umount /mnt/usb-data
-    <span class="pl-c1">exit</span> 1
-<span class="pl-k">fi</span>
-<span class="pl-c1">exit</span> 0</pre></div>
+    exit 1
+fi
+exit 0
+</code></pre>
 <hr>
 <ol start="2">
 <li>umount-data-disk.sh<br>
@@ -184,21 +185,22 @@ mount --bind /mnt/usb-data/DATA /DATA
 /usr/local/bin/umount-data-disk.sh
 </code></pre>
 <p>代码</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#!</span>/bin/bash</span>
-<span class="pl-c"><span class="pl-c">#</span> umount-data-disk.sh  --  safe unmount + spin-down</span>
-<span class="pl-c"><span class="pl-c">#</span> 1. 有人用就退出</span>
-lsof +f -- /DATA <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> grep -q <span class="pl-c1">.</span> <span class="pl-k">&amp;&amp;</span> { logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: still in use<span class="pl-pds">"</span></span><span class="pl-k">;</span> <span class="pl-c1">exit</span> 1<span class="pl-k">;</span> }
-<span class="pl-c"><span class="pl-c">#</span> 2. 解开bind</span>
-umount /DATA <span class="pl-k">2&gt;</span>/dev/null
-<span class="pl-c"><span class="pl-c">#</span> 3. 卸底层</span>
-umount /mnt/usb-data <span class="pl-k">2&gt;</span>/dev/null
-<span class="pl-c"><span class="pl-c">#</span> 4. 停转（找到实际设备）</span>
-DEV=<span class="pl-s"><span class="pl-pds">$(</span>blkid -L ARMBIAN_DATA<span class="pl-pds">)</span></span>
-[ <span class="pl-k">-n</span> <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$DEV</span><span class="pl-pds">"</span></span> ] <span class="pl-k">&amp;&amp;</span> hdparm -y <span class="pl-s"><span class="pl-pds">"</span><span class="pl-smi">$DEV</span><span class="pl-pds">"</span></span> <span class="pl-k">2&gt;</span>/dev/null
-<span class="pl-c"><span class="pl-c">#</span> 5. 锁本地目录</span>
-chattr +i /DATA <span class="pl-k">2&gt;</span>/dev/null
-logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: unmounted and spun down<span class="pl-pds">"</span></span>
-<span class="pl-c1">exit</span> 0</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">#!/bin/bash
+# umount-data-disk.sh  --  safe unmount + spin-down
+# 1. 有人用就退出
+lsof +f -- /DATA 2&gt;/dev/null | grep -q . &amp;&amp; { logger "USB-DATA: still in use"; exit 1; }
+# 2. 解开bind
+umount /DATA 2&gt;/dev/null
+# 3. 卸底层
+umount /mnt/usb-data 2&gt;/dev/null
+# 4. 停转（找到实际设备）
+DEV=$(blkid -L ARMBIAN_DATA)
+[ -n "$DEV" ] &amp;&amp; hdparm -y "$DEV" 2&gt;/dev/null
+# 5. 锁本地目录
+chattr +i /DATA 2&gt;/dev/null
+logger "USB-DATA: unmounted and spun down"
+exit 0
+</code></pre>
 <hr>
 <ol start="3">
 <li>data-idle-check.sh<br>
@@ -212,12 +214,13 @@ logger <span class="pl-s"><span class="pl-pds">"</span>USB-DATA: unmounted and s
 <pre class="notranslate"><code class="notranslate">chmod 755 /usr/local/bin/data-idle-check.sh
 </code></pre>
 <p>代码</p>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#!</span>/bin/bash</span>
-<span class="pl-c"><span class="pl-c">#</span> data-idle-check.sh</span>
-mountpoint -q /DATA <span class="pl-k">||</span> <span class="pl-c1">exit</span> 0
-lsof +f -- /DATA <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</span> grep -q <span class="pl-c1">.</span> <span class="pl-k">&amp;&amp;</span> <span class="pl-c1">exit</span> 0
-<span class="pl-c"><span class="pl-c">#</span> 真的空闲</span>
-/usr/local/bin/umount-data-disk.sh</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">#!/bin/bash
+# data-idle-check.sh
+mountpoint -q /DATA || exit 0
+lsof +f -- /DATA 2&gt;/dev/null | grep -q . &amp;&amp; exit 0
+# 真的空闲
+/usr/local/bin/umount-data-disk.sh
+</code></pre>
 <hr>
 <ol start="4">
 <li>root crontab 一行<br>
@@ -233,9 +236,10 @@ lsof +f -- /DATA <span class="pl-k">2&gt;</span>/dev/null <span class="pl-k">|</
 <li>4 个启动脚本里要插入的 3 行代码片段<br>
 把下面 3 行插到 <strong>每个 .sh 顶部</strong>（#!/bin/bash 之后，任何实际命令之前）：</li>
 </ol>
-<div class="highlight highlight-source-shell"><pre class="notranslate"><span class="pl-c"><span class="pl-c">#</span> ---- ensure USB-DATA online ----</span>
-/usr/local/bin/mount-data-disk.sh <span class="pl-k">||</span> { <span class="pl-c1">echo</span> <span class="pl-s"><span class="pl-pds">"</span>FATAL: USB-DATA not ready<span class="pl-pds">"</span></span><span class="pl-k">;</span> <span class="pl-c1">exit</span> 1<span class="pl-k">;</span> }
-touch /var/lib/usb-data-last-used</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate"># ---- ensure USB-DATA online ----
+/usr/local/bin/mount-data-disk.sh || { echo "FATAL: USB-DATA not ready"; exit 1; }
+touch /var/lib/usb-data-last-used
+</code></pre>
 <p>应用范围</p>
 <ul>
 <li>rslsync.sh</li>
@@ -292,7 +296,8 @@ EOF
 目的：卸载后让 path 触发器重新进入监听状态。<br>
 把下面一行加到 umount-data-disk.sh 末尾（exit 0 之前）：</li>
 </ol>
-<div class="highlight highlight-source-shell"><pre class="notranslate">systemctl stop data-auto-mount.service</pre></div>
+<pre lang="bash" class="notranslate"><code class="notranslate">systemctl stop data-auto-mount.service
+</code></pre>
 <p>已完成合并，无需手动操作。</p>
 <hr>
 <ol start="9">
